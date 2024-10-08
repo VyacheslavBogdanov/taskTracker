@@ -1,12 +1,8 @@
 .controlPanel {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	justify-content: space-between;
 	height: 55px;
 	border-bottom: 2px solid #444;
 	padding: 10px;
-}
-
-.panel {
-	display: flex;
 }

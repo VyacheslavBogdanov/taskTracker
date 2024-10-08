@@ -1,6 +1,6 @@
 import styles from './taskInput.module.css';
 import { useState } from 'react';
-import { Button } from '../../../button/button';
+import { Button } from '../../../../components';
 
 export const TaskInput = ({ onTodoAdd }) => {
 	const [value, setValue] = useState('');

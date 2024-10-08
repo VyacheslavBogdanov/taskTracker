@@ -1,99 +1,18 @@
-import { useEffect, useState } from 'react';
-import { ControlPanel, Todo } from './components';
-import { createTodo, readTodos, updateTodo, deleteTodo } from './api';
-import { addTodoInTodos, findTodo, removeTodoInTodos, setTodoInTodos } from './utils';
-import { NEW_TODO_ID } from './constants';
+import { Routes, Route } from 'react-router-dom';
+import { Main, TodoPage, ErrorPage } from './Routes';
+
 import styles from './app.module.css';
 
 export const App = () => {
-	const [todos, setTodos] = useState([]);
-	const [searchPhrase, setSearchPhrase] = useState('');
-	const [isAlphabetSorting, setIsAlphabetSorting] = useState(false);
-
-	const onTodoAdd = (title, completed) => {
-		if (title) {
-			createTodo({ title, completed }).then((todo) => {
-				let createdTodos = setTodoInTodos(todos, {
-					id: NEW_TODO_ID,
-					isEditing: true,
-				});
-				createdTodos = removeTodoInTodos(createdTodos, NEW_TODO_ID);
-				createdTodos = addTodoInTodos(createdTodos, todo);
-				setTodos(createdTodos);
-			});
-		}
-	};
-
-	const onTodoSave = (todoId) => {
-		const { title, completed } = findTodo(todos, todoId) || {};
-
-		if (todoId === NEW_TODO_ID) {
-			createTodo({ title, completed }).then((todo) => {
-				let updatedTodos = setTodoInTodos(todos, {
-					id: NEW_TODO_ID,
-					isEditing: false,
-				});
-
-				updatedTodos = removeTodoInTodos(updatedTodos, NEW_TODO_ID);
-				updatedTodos = addTodoInTodos(updatedTodos, todo);
-				setTodos(updatedTodos);
-			});
-		} else {
-			updateTodo({ id: todoId, title }).then(() => {
-				setTodos(setTodoInTodos(todos, { id: todoId, isEditing: false }));
-			});
-		}
-	};
-
-	const onTodoEdit = (id) => {
-		setTodos(setTodoInTodos(todos, { id, isEditing: true }));
-	};
-
-	const onTodoTitleChange = (id, newTitle) => {
-		setTodos(setTodoInTodos(todos, { id, title: newTitle }));
-	};
-
-	const onTodoCompletedChange = (id, newCompleted) => {
-		updateTodo({ id, completed: newCompleted }).then(() => {
-			setTodos(setTodoInTodos(todos, { id, completed: newCompleted }));
-		});
-	};
-
-	const onTodoRemove = (id) => {
-		deleteTodo(id).then(() => setTodos(removeTodoInTodos(todos, id)));
-	};
-
-	useEffect(() => {
-		readTodos(searchPhrase, isAlphabetSorting).then((loadedTodos) =>
-			setTodos(loadedTodos),
-		);
-	}, [searchPhrase, isAlphabetSorting]);
-
 	return (
 		<div className={styles.app}>
-			<ControlPanel
-				onTodoAdd={onTodoAdd}
-				onSearch={setSearchPhrase}
-				onSorting={setIsAlphabetSorting}
-			/>
-			<div>
-				{todos.map(({ id, title, completed, isEditing = false }) => (
-					<Todo
-						key={id}
-						id={id}
-						title={title}
-						completed={completed}
-						isEditing={isEditing}
-						onEdit={() => onTodoEdit(id)}
-						onTitleChange={(newTitle) => onTodoTitleChange(id, newTitle)}
-						onCompletedChange={(newCompleted) =>
-							onTodoCompletedChange(id, newCompleted)
-						}
-						onSave={() => onTodoSave(id)}
-						onRemove={() => onTodoRemove(id)}
-					/>
-				))}
-			</div>
+			<Routes>
+				<Route path="/" element={<Main />} />
+				<Route path="/todo" element={<TodoPage />} />
+				<Route path="/todo/:id" element={<TodoPage />} />
+				<Route path="/404" element={<ErrorPage />} />
+				<Route path="*" element={<ErrorPage />} />
+			</Routes>
 		</div>
 	);
 };
